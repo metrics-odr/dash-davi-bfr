@@ -41,7 +41,12 @@ for x in sorted(found, key=lambda x: (x["em"], x["d"] or "")):
 
 byemail = {}
 for x in sorted(found, key=lambda x: x["d"] or ""): byemail.setdefault(x["em"], x)
-fake = list(byemail.values()); n = len(fake); tm = len(allmql)
+fake = list(byemail.values()); n = len(fake)
+d0 = min((x["d"] for x in fake if x["d"]), default="")
+allmql_total = len(allmql)
+allmql = [x for x in allmql if x["d"] and x["d"] >= d0]   # janela: do falso MQL mais antigo em diante (igual ao painel da dash)
+tm = len(allmql)
+print(f"\nfalso MQL mais antigo: {d0} | MQLs desde essa data: {tm} (de {allmql_total} no total)")
 for dim, label in (("camp", "CAMPANHA"), ("adset", "CONJUNTO"), ("ad", "ANUNCIO")):
     print(f"\n== {label}: falsos (% dos {n}) | MQLs do item | % falso no item | share MQLs ==")
     fc = collections.Counter(x[dim] for x in fake); mc = collections.Counter(x[dim] for x in allmql)
