@@ -8,3 +8,6 @@ __pycache__/
 
 # CSVs baixados para teste local
 *.csv
+
+# Config local do Claude Code
+.claude/settings.local.json
