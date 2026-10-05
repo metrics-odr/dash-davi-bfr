@@ -73,32 +73,23 @@ os Insights.
 
 ## Contexto do funil
 
-**Funil de High Ticket (<<PREENCHER: nome do cliente>>)** — <<PREENCHER: descrição
-curta do cliente/oferta>>. Funil de captura via WhatsApp com venda 1:1 (comercial
-fecha por conversa/reunião, não carrinho direto): o anúncio no Meta Ads leva
-a uma página de captura com botão do WhatsApp; ao clicar, o lead chama no
-WhatsApp Business do cliente e o webhook de mensageria dispara na 1ª mensagem,
-que cai na aba **Conversas** (fonte principal de leads deste dashboard). O
-critério de qualificação (MQL) é <<PREENCHER: critério de MQL do cliente, ex.
-"o lead ser médico">> — se qualificado, segue a conversa com o comercial até a
-venda (registrada na aba de Compradores e cruzada de volta ao anúncio por telefone).
+**Funil de captura — Business For Real (Davi Braga)** — funil de geração de leads
+com formulário nativo no Meta Ads (às vezes testamos página de captura). O objetivo
+é levar leads a um evento presencial gratuito, o **Business For Real**, que ocorre
+a cada ~2 meses. O critério de qualificação (MQL) é **faturar acima de R$ 2
+milhões por ano** (resposta do formulário, escrita de várias formas: 2mm, 2
+milhões, 2 m...). O funil termina nos **Checkins** (pessoas que fizeram check-in
+no evento, cruzadas por telefone com os leads e atribuídas ao anúncio de origem).
 
 ```
-Impressões → Cliques/abertura do WhatsApp → Leads → MQLs → Vendas → Faturamento
+Impressões → Cliques → Leads → MQLs → Checkins
 ```
 
-- **MQL** = coluna de qualificação (<<PREENCHER: nome da coluna de MQL>>) == "Sim" (ver `build.py` → `is_medico`).
-- **Agendamento** = o lead qualificado marcou horário de reunião com o comercial.
-- **Reunião Realizada** = a reunião de fato aconteceu (o lead compareceu). O
-  inverso disso é o **No‑Show** (agendou e não compareceu) — a métrica de alerta
-  mais importante entre Agendamento e Venda.
-
-> **Estado atual dos dados:** enquanto só houver mídia paga × Leads, o funil
-> vai até **MQL**. As etapas seguintes (Agendamentos, Reuniões Realizadas, Vendas,
-> Faturamento) e as métricas derivadas aparecem como “-” até chegar a lista do
-> comercial/vendas. Quando os campos `agendamentos`/`reunioes`/`vendas`/
-> `fat` forem somados por linha em `buildAgg/daily/totals` (`build/app.js`),
-> **toda a UI acende sozinha** (funil, tabelas, Top/Piores).
+- **MQL** = lead que fatura acima de R$ 2 milhões/ano (ver `build.py` → `is_mql_faturamento`).
+- **Checkin** = contato que fez check-in no evento presencial (aba Check-In Realizado).
+- O funil **termina nos Checkins**: não há Agendamentos, Reuniões, Presentes, Vendas nem
+  Faturamento neste dashboard — não os cite nem cobre esses dados nos Insights.
+  O indicador de custo da etapa final é o **Custo/Checkin** (gasto ÷ checkins).
 
 ## Fórmulas fundamentais
 
