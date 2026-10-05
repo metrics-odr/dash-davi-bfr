@@ -18,9 +18,6 @@ idx = b.header_index(h, {"email": ["e-mail", "email", "mail"], "created": ["data
         "camp": ["campanha"], "adset": ["conjunto"], "ad": ["anuncio"]}, {})
 print("MAPA:", b.describe_idx(h, idx))
 
-def mask(e):
-    u, _, d = e.partition("@"); return u[:3] + "***@" + d
-
 found, allmql, tot = [], [], 0
 for r in rows[1:]:
     if not any((c or "").strip() for c in r): continue
@@ -35,10 +32,6 @@ for r in rows[1:]:
 
 seen = {x["em"] for x in found}
 print(f"\nleads: {tot} | MQLs: {len(allmql)} | e-mails da lista encontrados: {len(seen)}/11 ({len(found)} linhas)")
-print("\n== LEAD A LEAD ==")
-for x in sorted(found, key=lambda x: (x["em"], x["d"] or "")):
-    print(f"{mask(x['em'])} | {x['d']} | resp='{x['fat']}' | MQL={x['mql']} | {x['camp']} | {x['adset']} | {x['ad']}")
-
 byemail = {}
 for x in sorted(found, key=lambda x: x["d"] or ""): byemail.setdefault(x["em"], x)
 fake = list(byemail.values()); n = len(fake)
@@ -55,3 +48,4 @@ for dim, label in (("camp", "CAMPANHA"), ("adset", "CONJUNTO"), ("ad", "ANUNCIO"
 print("\nbase geral: falsos/MQLs totais = %.3f%%" % (100*n/tm))
 print("\n== RESPOSTAS DE FATURAMENTO ==")
 for k, c in collections.Counter(x["fat"] for x in fake).most_common(): print(c, k)
+# saida somente agregada (sem e-mails)
