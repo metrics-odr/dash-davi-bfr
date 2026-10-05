@@ -175,6 +175,17 @@
           <p class="note" id="relMetasNote"></p>
         </div>
 
+        <!-- ---- Falsos MQL (auditoria): cruza e-mails no navegador, sem publicar e-mails ---- -->
+        <div class="rel-metas card" id="falsosCard">
+          <div class="rel-metas-head">
+            <div><b>Falsos MQL · auditoria por anúncio</b> <span class="hint">cole os e-mails (um por linha); o cruzamento é feito neste navegador por hash — nenhum e-mail é publicado na página. A lista fica salva só neste navegador.</span></div>
+            <button class="btn" id="falsosClear" type="button">Limpar lista</button>
+          </div>
+          <textarea id="falsosInput" rows="5" style="width:100%;box-sizing:border-box" placeholder="email1@exemplo.com&#10;email2@exemplo.com"></textarea>
+          <div style="margin:8px 0"><button class="btn" id="falsosRun" type="button">Analisar</button></div>
+          <div id="falsosOut"></div>
+        </div>
+
         <!-- ---- espelho da Visão Geral (mesmos dados/gráficos, IDs próprios) ---- -->
         <h2 class="sec-title">Funil de leads &amp; evolução diária</h2>
         <div class="grid funnel-grid">

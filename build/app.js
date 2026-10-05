@@ -1060,6 +1060,47 @@ function renderMeta(){
     rows:q.map((l,i)=>({k:'q'+i, cells:{d:l.d,nm:l.nm,prof:l.prof,bucket:l.bucket,camp:l.camp,em:l.em,ph:l.ph}}))});
 }
 
+
+/* ---------------- Falsos MQL (auditoria) ----------------
+   O usuário cola e-mails; cada um vira SHA-256 (16 hex) no navegador e é cruzado com
+   leads[].eh (gerado no build). Nenhum e-mail em texto aberto é publicado na página. */
+async function sha16(e){
+  const b=await crypto.subtle.digest('SHA-256',new TextEncoder().encode(String(e).trim().toLowerCase()));
+  return Array.from(new Uint8Array(b)).map(x=>x.toString(16).padStart(2,'0')).join('').slice(0,16);
+}
+async function renderFalsos(){
+  const out=document.getElementById('falsosOut'), inp=document.getElementById('falsosInput');
+  if(!out||!inp) return;
+  const emails=[...new Set(inp.value.split(/[\s,;]+/).map(x=>x.trim().toLowerCase()).filter(x=>x.includes('@')))];
+  try{ localStorage.setItem('dm_falsos',inp.value); }catch(e){}
+  if(!emails.length){ out.innerHTML='<p class="note">Cole a lista de e-mails e clique em Analisar.</p>'; return; }
+  if(!LEADS.some(l=>l.eh)){ out.innerHTML='<p class="note"><b>A aba de Leads não trouxe coluna de e-mail</b> — sem ela não dá para identificar o anúncio de cada e-mail. Confira o cabeçalho da coluna de e-mail na planilha.</p>'; return; }
+  const set=new Set(await Promise.all(emails.map(sha16)));
+  const hit=LEADS.filter(l=>l.eh&&set.has(l.eh));
+  const miss=emails.length-new Set(hit.map(l=>l.eh)).size;
+  const byE={}; hit.slice().sort((a,b)=>(a.d||'')<(b.d||'')?-1:1).forEach(l=>{ if(!byE[l.eh]) byE[l.eh]=l; });
+  const fake=Object.values(byE), n=fake.length;
+  if(!n){ out.innerHTML='<p class="note">Nenhum dos '+emails.length+' e-mails foi encontrado na aba de Leads.</p>'; return; }
+  const mq=LEADS.filter(l=>l.q), tm=mq.length;
+  const block=(title,dim)=>{
+    const f={}, m={}; fake.forEach(l=>f[l[dim]]=(f[l[dim]]||0)+1); mq.forEach(l=>m[l[dim]]=(m[l[dim]]||0)+1);
+    const rows=Object.entries(f).sort((a,b)=>b[1]-a[1]).map(([k,c])=>
+      '<tr><td>'+escHtml(k)+'</td><td>'+intf(c)+'</td><td>'+pct(c/n)+'</td><td>'+intf(m[k]||0)+'</td><td>'+pct((m[k]||0)?c/(m[k]):null)+'</td><td>'+pct(tm?(m[k]||0)/tm:null)+'</td></tr>').join('');
+    return '<h4 style="margin:14px 0 6px">'+title+'</h4><div class="tbl-wrap" style="padding:0"><table class="dt dt-center"><thead><tr><th>'+title+'</th><th>Falsos MQL</th><th>% dos falsos</th><th>MQLs do item</th><th>% falso no item</th><th>Share dos MQLs</th></tr></thead><tbody>'+rows+'</tbody></table></div>';
+  };
+  const det=fake.map(l=>'<tr><td>'+escHtml(l.em||'—')+'</td><td>'+escHtml(l.d||'—')+'</td><td>'+escHtml(l.bucket||'—')+'</td><td>'+escHtml(l.camp)+'</td><td>'+escHtml(l.adset)+'</td><td>'+escHtml(l.ad)+'</td></tr>').join('');
+  out.innerHTML='<p class="note"><b>'+n+'</b> de '+emails.length+' e-mails encontrados'+(miss?(' · '+miss+' não encontrados'):'')+' · base: '+intf(tm)+' MQLs no total ('+pct(tm?n/tm:null)+' são falsos nesta lista).</p>'
+    +block('Anúncio','ad')+block('Conjunto','adset')+block('Campanha','camp')
+    +'<h4 style="margin:14px 0 6px">Lead a lead</h4><div class="tbl-wrap" style="padding:0"><table class="dt"><thead><tr><th>E-mail (mascarado)</th><th>Data</th><th>Resposta de faturamento</th><th>Campanha</th><th>Conjunto</th><th>Anúncio</th></tr></thead><tbody>'+det+'</tbody></table></div>';
+}
+(function bindFalsos(){
+  const inp=document.getElementById('falsosInput'); if(!inp) return;
+  try{ inp.value=localStorage.getItem('dm_falsos')||''; }catch(e){}
+  document.getElementById('falsosRun').addEventListener('click',renderFalsos);
+  document.getElementById('falsosClear').addEventListener('click',()=>{ inp.value=''; try{localStorage.removeItem('dm_falsos');}catch(e){} renderFalsos(); });
+  if(inp.value.trim()) renderFalsos();
+})();
+
 /* ---------------- date presets ---------------- */
 const PRESETS=[
   ['hoje','Hoje',()=>[TODAY,TODAY]],
