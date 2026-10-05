@@ -1,0 +1,16 @@
+name: Analise temporaria falsos MQL
+on:
+  push:
+    branches: [ "claude/loving-wozniak-zs54gy" ]
+    paths: [ "tmp_analise/**" ]
+permissions:
+  contents: read
+jobs:
+  run:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v5
+      - uses: actions/setup-python@v6
+        with:
+          python-version: "3.12"
+      - run: python tmp_analise/analise_falsos_mql.py
