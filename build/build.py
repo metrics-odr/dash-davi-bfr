@@ -30,6 +30,7 @@ from __future__ import annotations
 
 import argparse
 import csv
+import hashlib
 import io
 import json
 import os
@@ -224,6 +225,13 @@ def mask_email(e: str) -> str:
     return f"{keep}****@{dom}"
 
 
+def email_hash(e: str) -> str:
+    """Impressao digital do e-mail (SHA-256, 16 hex): permite cruzar uma lista de e-mails
+    NO NAVEGADOR (painel "Falsos MQL") sem publicar o e-mail em texto aberto."""
+    e = (e or "").strip().lower()
+    return hashlib.sha256(e.encode("utf-8")).hexdigest()[:16] if "@" in e else ""
+
+
 def mask_phone(p: str) -> str:
     digits = re.sub(r"\D", "", p or "")
     return f"…{digits[-4:]}" if len(digits) >= 4 else "—"
@@ -353,9 +361,10 @@ def process(conversas_rows, meta_rows, sales_rows):
         cheader,
         {"created": ["data", "created", "criado"], "phone": PHONE_ALIASES, "name": ["nome", "name"],
          "faturamento": ["faturamento", "faturam", "receita anual", "renda"],
+         "email": ["e-mail", "email", "mail"],
          "campaign": ["campanha", "utm_campaign", "campaign"],
          "adset": ["conjunto", "adset", "ad set"], "ad": ["anuncio", "utm_content", "ad name"]},
-        {"created": None, "phone": None, "name": None, "faturamento": None,
+        {"created": None, "phone": None, "name": None, "faturamento": None, "email": None,
          "campaign": None, "adset": None, "ad": None},
     )
     print(f"  [leads] colunas: {describe_idx(cheader, cidx)}", file=sys.stderr)
@@ -404,7 +413,8 @@ def process(conversas_rows, meta_rows, sales_rows):
             "q": 1 if is_mql_faturamento(cell(row, cidx["faturamento"])) else 0,
             "utm": 1 if campaign_valid else 0,
             "nm": first_last_initial(cell(row, cidx["name"])),
-            "em": "—",
+            "em": mask_email(cell(row, cidx["email"])),
+            "eh": email_hash(cell(row, cidx["email"])),
             "ph": mask_phone(cell(row, cidx["phone"])),
         })
 
