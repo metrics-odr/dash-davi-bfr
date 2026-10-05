@@ -1,13 +1,14 @@
-# Dashboard de Captura de Leads · <<PREENCHER: nome do cliente>>
+# Dashboard de Captura de Leads · Davi Braga
 
-Dashboard **100% na nuvem** do Funil de High Ticket de **<<PREENCHER: nome do
-cliente>>** que cruza a aba **Conversas** (leads via WhatsApp/mensageria) com o
-investimento de mídia paga (**Meta Ads**) e com a lista de **Compradores**,
-calcula os **Leads Qualificados (MQLs)** e as **Vendas/Faturamento** atribuídos
-por anúncio, e é publicada no **GitHub Pages**. Reconstrói sozinha a cada
+Dashboard **100% na nuvem** do funil **Business For Real** de **Davi Braga**
+(geração de leads com formulário nativo, para um evento presencial gratuito
+realizado a cada ~2 meses). Cruza a aba de **Leads** com o investimento de mídia
+paga (**Meta Ads**) e com a lista de **Check-In Realizado**, calcula os **Leads
+Qualificados (MQLs)** e os **Checkins** atribuídos por anúncio
+(Leads → MQLs → Checkins), e é publicada no **GitHub Pages**. Reconstrói sozinha a cada
 ~30 min, disparada pelo **cron-job.org** — sem depender de nenhum PC ligado.
 
-**URL pública:** `https://<<PREENCHER: owner do GitHub>>.github.io/<<PREENCHER: nome do repositório>>/`
+**URL pública:** `https://metrics-odr.github.io/dash-davi-bfr/`
 
 ---
 
@@ -23,20 +24,22 @@ por anúncio, e é publicada no **GitHub Pages**. Reconstrói sozinha a cada
 
 ## Critério de Lead Qualificado (MQL)
 
-Coluna de qualificação do cliente (<<PREENCHER: nome da coluna de MQL, ex. "É médico?">>)
-== "Sim". Lógica em `build.py` → `is_medico` (renomeie/ajuste ao critério do cliente).
+Lead que **fatura acima de R$ 2 milhões por ano** (coluna de faturamento anual
+declarado no formulário). A resposta vem escrita de várias formas ("2mm",
+"2 milhões", "2 m", "Acima de 2 milhões"...) — `build.py` → `is_mql_faturamento`
+lê o **limite inferior da faixa** e qualifica quando é ≥ R$ 2.000.000
+(ex.: "De 1 a 2 milhões" **não** qualifica; "De 2 a 5 milhões" qualifica).
 
 ## Fontes de dados (somente leitura)
 
-Planilha central `<<PREENCHER: nome da planilha central>>`
-(`<<PREENCHER: SPREADSHEET_ID>>`):
+Planilha central `Davi | BRF | Planilha Central`
+(`16FOsujjmymRJdj0tMdFy08qfRJtvXyXIw8HCwHDwwAA`):
 
 | Aba | gid | Uso |
 |-----|-----|-----|
-| Conversas (fonte principal) | `<<PREENCHER: GID_CONVERSAS>>` | fonte **principal** de leads (webhook/mensageria) — usada em todos os gráficos/cards/tabelas |
-| Leads (legado) | `<<PREENCHER: GID_LEADS>>` | popup/form antigo — só contada (total), não entra em cálculo algum |
-| Meta Ads | `<<PREENCHER: GID_META>>` | gasto, impressões, cliques |
-| New Subscriptions (Compradores) | `<<PREENCHER: GID_SALES>>` | cruzada por telefone com a Conversas → Vendas/Faturamento por anúncio |
+| Leads (fonte principal) | `1895619916` | leads com faixa de faturamento, campanha, conjunto e anúncio — usada em todos os gráficos/cards/tabelas |
+| Meta Ads | `1245628405` | gasto, impressões, cliques |
+| Check-In Realizado | `686867257` | cruzada por telefone com os Leads → Checkins por anúncio |
 
 O build lê essas abas via **export CSV público** (`.../export?format=csv&gid=...`).
 **Nada é escrito de volta** nas planilhas.
