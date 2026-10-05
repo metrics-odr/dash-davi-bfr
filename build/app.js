@@ -1081,7 +1081,9 @@ async function renderFalsos(){
   const byE={}; hit.slice().sort((a,b)=>(a.d||'')<(b.d||'')?-1:1).forEach(l=>{ if(!byE[l.eh]) byE[l.eh]=l; });
   const fake=Object.values(byE), n=fake.length;
   if(!n){ out.innerHTML='<p class="note">Nenhum dos '+emails.length+' e-mails foi encontrado na aba de Leads.</p>'; return; }
-  const mq=LEADS.filter(l=>l.q), tm=mq.length;
+  /* janela: do lead falso mais antigo em diante (fake já vem ordenado por data crescente) */
+  const d0=fake.map(l=>l.d).filter(Boolean).sort()[0]||'';
+  const mqAll=LEADS.filter(l=>l.q), mq=mqAll.filter(l=>l.d&&l.d>=d0), tm=mq.length;
   const block=(title,dim)=>{
     const f={}, m={}; fake.forEach(l=>f[l[dim]]=(f[l[dim]]||0)+1); mq.forEach(l=>m[l[dim]]=(m[l[dim]]||0)+1);
     const rows=Object.entries(f).sort((a,b)=>b[1]-a[1]).map(([k,c])=>
@@ -1089,8 +1091,9 @@ async function renderFalsos(){
     return '<h4 style="margin:14px 0 6px">'+title+'</h4><div class="tbl-wrap" style="padding:0"><table class="dt dt-center"><thead><tr><th>'+title+'</th><th>Falsos MQL</th><th>% dos falsos</th><th>MQLs do item</th><th>% falso no item</th><th>Share dos MQLs</th></tr></thead><tbody>'+rows+'</tbody></table></div>';
   };
   const det=fake.map(l=>'<tr><td>'+escHtml(l.em||'—')+'</td><td>'+escHtml(l.d||'—')+'</td><td>'+escHtml(l.bucket||'—')+'</td><td>'+escHtml(l.camp)+'</td><td>'+escHtml(l.adset)+'</td><td>'+escHtml(l.ad)+'</td></tr>').join('');
-  out.innerHTML='<p class="note"><b>'+n+'</b> de '+emails.length+' e-mails encontrados'+(miss?(' · '+miss+' não encontrados'):'')+' · base: '+intf(tm)+' MQLs no total ('+pct(tm?n/tm:null)+' são falsos nesta lista).</p>'
+  out.innerHTML='<p class="note"><b>'+n+'</b> de '+emails.length+' e-mails encontrados'+(miss?(' · '+miss+' não encontrados'):'')+'.</p><p class="note">Falso MQL mais antigo: <b>'+escHtml(d0||'—')+'</b> · base: <b>'+intf(tm)+'</b> MQLs gerados desde essa data (de '+intf(mqAll.length)+' no total) · '+pct(tm?n/tm:null)+' são falsos nesta lista.</p>'
     +block('Anúncio','ad')+block('Conjunto','adset')+block('Campanha','camp')
+    +'<details style="margin:14px 0 6px"><summary><b>MQLs totais desde '+escHtml(d0||'—')+' ('+intf(tm)+')</b></summary><div class="tbl-wrap" style="padding:0"><table class="dt"><thead><tr><th>Data</th><th>E‑mail (mascarado)</th><th>Resposta de faturamento</th><th>Campanha</th><th>Conjunto</th><th>Anúncio</th><th>Falso?</th></tr></thead><tbody>'+mq.slice().sort((a,b)=>(a.d<b.d?1:-1)).map(l=>'<tr><td>'+escHtml(l.d||'—')+'</td><td>'+escHtml(l.em||'—')+'</td><td>'+escHtml(l.bucket||'—')+'</td><td>'+escHtml(l.camp)+'</td><td>'+escHtml(l.adset)+'</td><td>'+escHtml(l.ad)+'</td><td>'+(l.eh&&set.has(l.eh)?'Sim':'')+'</td></tr>').join('')+'</tbody></table></div></details>'
     +'<h4 style="margin:14px 0 6px">Lead a lead</h4><div class="tbl-wrap" style="padding:0"><table class="dt"><thead><tr><th>E-mail (mascarado)</th><th>Data</th><th>Resposta de faturamento</th><th>Campanha</th><th>Conjunto</th><th>Anúncio</th></tr></thead><tbody>'+det+'</tbody></table></div>';
 }
 (function bindFalsos(){
