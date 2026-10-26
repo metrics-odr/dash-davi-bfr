@@ -1,0 +1,23 @@
+name: Analise desqualificados por anuncio
+
+# Análise pontual (somente leitura das planilhas). O resultado sai no log do job.
+on:
+  workflow_dispatch:
+  push:
+    branches: [ claude/peaceful-archimedes-8dchmi ]
+    paths:
+      - "analises/**"
+      - ".github/workflows/analise-desqualificados.yml"
+
+permissions:
+  contents: read
+
+jobs:
+  analise:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v5
+      - uses: actions/setup-python@v6
+        with:
+          python-version: "3.12"
+      - run: python analises/desqualificados.py
